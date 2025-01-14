@@ -161,6 +161,9 @@ namespace MyHealthcareApp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AppointmentId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
 
@@ -175,6 +178,8 @@ namespace MyHealthcareApp.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
 
                     b.HasIndex("DoctorId");
 
@@ -455,6 +460,10 @@ namespace MyHealthcareApp.Migrations
 
             modelBuilder.Entity("MyHealthcareApp.Models.MedicalRecord", b =>
                 {
+                    b.HasOne("MyHealthcareApp.Models.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId");
+
                     b.HasOne("MyHealthcareApp.Models.Doctor", "Doctor")
                         .WithMany("MedicalRecords")
                         .HasForeignKey("DoctorId")
@@ -466,6 +475,8 @@ namespace MyHealthcareApp.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Appointment");
 
                     b.Navigation("Doctor");
 

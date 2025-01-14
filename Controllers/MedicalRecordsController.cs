@@ -25,11 +25,13 @@ namespace MyHealthcareApp.Controllers
                 .Include(m => m.Doctor)
                 .Include(m => m.Patient)
                 .Include(m => m.Prescription)
+                .Include(m => m.Appointment)
                 .Select(m => new
                 {
                     m.Id,
                     m.PatientId,
                     m.DoctorId,
+                    m.AppointmentId,
                     m.Date,
                     m.Diagnosis,
                     Doctor = new { 
@@ -48,6 +50,12 @@ namespace MyHealthcareApp.Controllers
                         m.Prescription.Description,
                         m.Prescription.Medicaments,
                         m.Prescription.Posologie
+                    },
+                    Appointment = m.Appointment == null ? null : new
+                    {
+                        m.Appointment.Id,
+                        m.Appointment.Date,
+                        Status = m.Appointment.Statut
                     }
                 })
                 .ToListAsync();
@@ -56,12 +64,45 @@ namespace MyHealthcareApp.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MedicalRecord>> GetMedicalRecord(int id)
+        public async Task<ActionResult<object>> GetMedicalRecord(int id)
         {
             var medicalRecord = await _context.MedicalRecords
                 .Include(m => m.Doctor)
                 .Include(m => m.Patient)
                 .Include(m => m.Prescription)
+                .Include(m => m.Appointment)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.PatientId,
+                    m.DoctorId,
+                    m.AppointmentId,
+                    m.Date,
+                    m.Diagnosis,
+                    Doctor = new {
+                        m.Doctor.Id,
+                        m.Doctor.Nom,
+                        m.Doctor.Specialite
+                    },
+                    Patient = new {
+                        m.Patient.Id,
+                        m.Patient.Nom,
+                        m.Patient.Email
+                    },
+                    Prescription = m.Prescription == null ? null : new
+                    {
+                        m.Prescription.Id,
+                        m.Prescription.Description,
+                        m.Prescription.Medicaments,
+                        m.Prescription.Posologie
+                    },
+                    Appointment = m.Appointment == null ? null : new
+                    {
+                        m.Appointment.Id,
+                        m.Appointment.Date,
+                        Status = m.Appointment.Statut
+                    }
+                })
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (medicalRecord == null)
@@ -69,20 +110,59 @@ namespace MyHealthcareApp.Controllers
                 return NotFound();
             }
 
-            return medicalRecord;
+            return Ok(medicalRecord);
         }
 
         [HttpPost]
-        public async Task<ActionResult<MedicalRecord>> PostMedicalRecord(MedicalRecord medicalRecord)
+        public async Task<ActionResult<object>> PostMedicalRecord(MedicalRecord medicalRecord)
         {
             _context.MedicalRecords.Add(medicalRecord);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetMedicalRecord), new { id = medicalRecord.Id }, medicalRecord);
+            var result = await _context.MedicalRecords
+                .Include(m => m.Doctor)
+                .Include(m => m.Patient)
+                .Include(m => m.Prescription)
+                .Include(m => m.Appointment)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.PatientId,
+                    m.DoctorId,
+                    m.AppointmentId,
+                    m.Date,
+                    m.Diagnosis,
+                    Doctor = new {
+                        m.Doctor.Id,
+                        m.Doctor.Nom,
+                        m.Doctor.Specialite
+                    },
+                    Patient = new {
+                        m.Patient.Id,
+                        m.Patient.Nom,
+                        m.Patient.Email
+                    },
+                    Prescription = m.Prescription == null ? null : new
+                    {
+                        m.Prescription.Id,
+                        m.Prescription.Description,
+                        m.Prescription.Medicaments,
+                        m.Prescription.Posologie
+                    },
+                    Appointment = m.Appointment == null ? null : new
+                    {
+                        m.Appointment.Id,
+                        m.Appointment.Date,
+                        Status = m.Appointment.Statut
+                    }
+                })
+                .FirstOrDefaultAsync(m => m.Id == medicalRecord.Id);
+
+            return CreatedAtAction(nameof(GetMedicalRecord), new { id = medicalRecord.Id }, result);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMedicalRecord(int id, MedicalRecord medicalRecord)
+        public async Task<ActionResult<object>> PutMedicalRecord(int id, MedicalRecord medicalRecord)
         {
             if (id != medicalRecord.Id)
             {
@@ -94,6 +174,47 @@ namespace MyHealthcareApp.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                var result = await _context.MedicalRecords
+                    .Include(m => m.Doctor)
+                    .Include(m => m.Patient)
+                    .Include(m => m.Prescription)
+                    .Include(m => m.Appointment)
+                    .Select(m => new
+                    {
+                        m.Id,
+                        m.PatientId,
+                        m.DoctorId,
+                        m.AppointmentId,
+                        m.Date,
+                        m.Diagnosis,
+                        Doctor = new {
+                            m.Doctor.Id,
+                            m.Doctor.Nom,
+                            m.Doctor.Specialite
+                        },
+                        Patient = new {
+                            m.Patient.Id,
+                            m.Patient.Nom,
+                            m.Patient.Email
+                        },
+                        Prescription = m.Prescription == null ? null : new
+                        {
+                            m.Prescription.Id,
+                            m.Prescription.Description,
+                            m.Prescription.Medicaments,
+                            m.Prescription.Posologie
+                        },
+                        Appointment = m.Appointment == null ? null : new
+                        {
+                            m.Appointment.Id,
+                            m.Appointment.Date,
+                            Status = m.Appointment.Statut
+                        }
+                    })
+                    .FirstOrDefaultAsync(m => m.Id == id);
+
+                return Ok(result);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -106,8 +227,6 @@ namespace MyHealthcareApp.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
         [HttpDelete("{id}")]

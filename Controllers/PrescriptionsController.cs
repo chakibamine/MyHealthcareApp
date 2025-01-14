@@ -52,7 +52,7 @@ namespace MyHealthcareApp.Controllers
 
             _context.Entry(prescription).State = EntityState.Modified;
             _context.SaveChanges();
-            return NoContent();
+            return CreatedAtAction(nameof(GetPrescription), new { id = prescription.Id }, prescription);
         }
 
         [HttpDelete("{id}")]

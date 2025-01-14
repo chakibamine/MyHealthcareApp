@@ -20,9 +20,32 @@ namespace MyHealthcareApp.Controllers
 
         // GET: api/Appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
+        public async Task<ActionResult<IEnumerable<object>>> GetAppointments()
         {
-            return await _context.Appointments.ToListAsync();
+            var appointments = await _context.Appointments
+                .Include(a => a.Doctor)
+                .Include(a => a.Patient)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Date,
+                    a.Heure,
+                    a.Statut,
+                    a.Notes,
+                    Doctor = new
+                    {
+                        a.Doctor.Id,
+                        a.Doctor.Nom
+                    },
+                    Patient = new
+                    {
+                        a.Patient.Id,
+                        a.Patient.Nom
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(appointments);
         }
 
         // GET: api/Appointments/5

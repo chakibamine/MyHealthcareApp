@@ -10,6 +10,7 @@ namespace MyHealthcareApp.Models
         public int Id { get; set; }
         public int PatientId { get; set; }
         public int DoctorId { get; set; }
+        public int? AppointmentId { get; set; }
         public DateTime Date { get; set; }
         public string Diagnosis { get; set; }
         
@@ -22,5 +23,8 @@ namespace MyHealthcareApp.Models
         [ValidateNever]
         [JsonIgnore]
         public Prescription Prescription { get; set; }
+        [ValidateNever]
+        [JsonIgnore]
+        public Appointment? Appointment { get; set; }
     }
 }
