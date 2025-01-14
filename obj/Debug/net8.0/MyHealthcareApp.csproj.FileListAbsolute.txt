@@ -333,3 +333,7 @@ D:\MyHealthcareApp2\MyHealthcareApp\obj\Debug\net8.0\refint\MyHealthcareApp.dll
 D:\MyHealthcareApp2\MyHealthcareApp\obj\Debug\net8.0\MyHealthcareApp.pdb
 D:\MyHealthcareApp2\MyHealthcareApp\obj\Debug\net8.0\MyHealthcareApp.genruntimeconfig.cache
 D:\MyHealthcareApp2\MyHealthcareApp\obj\Debug\net8.0\ref\MyHealthcareApp.dll
+D:\MyHealthcareApp2\MyHealthcareApp\obj\Debug\net8.0\MyHealthcareApp.sourcelink.json
+D:\MyHealthcareApp2\MyHealthcareApp\bin\Debug\net8.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\MyHealthcareApp2\MyHealthcareApp\bin\Debug\net8.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\MyHealthcareApp2\MyHealthcareApp\bin\Debug\net8.0\Newtonsoft.Json.Bson.dll

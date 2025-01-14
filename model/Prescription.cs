@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 namespace MyHealthcareApp.Models
 {
     public class Prescription
@@ -11,6 +14,8 @@ namespace MyHealthcareApp.Models
 
         // One-to-One relationship with MedicalRecord
         public int MedicalRecordId { get; set; }
+        [ValidateNever]
+        [JsonIgnore]
         public MedicalRecord MedicalRecord { get; set; }
     }
 }

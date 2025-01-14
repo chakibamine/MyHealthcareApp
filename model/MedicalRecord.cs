@@ -1,20 +1,26 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 namespace MyHealthcareApp.Models
 {
     public class MedicalRecord
     {
         public int Id { get; set; }
+        public int PatientId { get; set; }
+        public int DoctorId { get; set; }
+        public DateTime Date { get; set; }
         public string Diagnosis { get; set; }
         
-        public DateTime Date { get; set; }
-
-        // Relationships
-        public int PatientId { get; set; }
-        public Patient Patient { get; set; }
-
-        public int DoctorId { get; set; }
+        [ValidateNever]
+        [JsonIgnore]
+        public virtual Patient Patient { get; set; }    
+        [ValidateNever]
+        [JsonIgnore]
         public Doctor Doctor { get; set; }
-
-        // One-to-One relationship with Prescription
+        [ValidateNever]
+        [JsonIgnore]
         public Prescription Prescription { get; set; }
     }
 }

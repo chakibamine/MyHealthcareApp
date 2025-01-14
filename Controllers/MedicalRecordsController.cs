@@ -19,55 +19,115 @@ namespace MyHealthcareApp.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<MedicalRecord>> GetMedicalRecords()
+        public async Task<ActionResult<IEnumerable<object>>> GetMedicalRecords()
         {
-            return _context.MedicalRecords.ToList();
+            var records = await _context.MedicalRecords
+                .Include(m => m.Doctor)
+                .Include(m => m.Patient)
+                .Include(m => m.Prescription)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.PatientId,
+                    m.DoctorId,
+                    m.Date,
+                    m.Diagnosis,
+                    Doctor = new { 
+                        m.Doctor.Id, 
+                        m.Doctor.Nom,
+                        m.Doctor.Specialite 
+                    },
+                    Patient = new { 
+                        m.Patient.Id, 
+                        m.Patient.Nom,
+                        m.Patient.Email 
+                    },
+                    Prescription = m.Prescription == null ? null : new
+                    {
+                        m.Prescription.Id,
+                        m.Prescription.Description,
+                        m.Prescription.Medicaments,
+                        m.Prescription.Posologie
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(records);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<MedicalRecord> GetMedicalRecord(int id)
+        public async Task<ActionResult<MedicalRecord>> GetMedicalRecord(int id)
         {
-            var record = _context.MedicalRecords.Find(id);
-            if (record == null)
+            var medicalRecord = await _context.MedicalRecords
+                .Include(m => m.Doctor)
+                .Include(m => m.Patient)
+                .Include(m => m.Prescription)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (medicalRecord == null)
             {
                 return NotFound();
             }
-            return record;
+
+            return medicalRecord;
         }
 
         [HttpPost]
-        public async Task<ActionResult<MedicalRecord>> PostMedicalRecord(MedicalRecord record)
+        public async Task<ActionResult<MedicalRecord>> PostMedicalRecord(MedicalRecord medicalRecord)
         {
-            _context.MedicalRecords.Add(record);
+            _context.MedicalRecords.Add(medicalRecord);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetMedicalRecord), new { id = record.Id }, record);
+
+            return CreatedAtAction(nameof(GetMedicalRecord), new { id = medicalRecord.Id }, medicalRecord);
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateMedicalRecord(int id, MedicalRecord record)
+        public async Task<IActionResult> PutMedicalRecord(int id, MedicalRecord medicalRecord)
         {
-            if (id != record.Id)
+            if (id != medicalRecord.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(record).State = EntityState.Modified;
-            _context.SaveChanges();
+            _context.Entry(medicalRecord).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MedicalRecordExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteMedicalRecord(int id)
+        public async Task<IActionResult> DeleteMedicalRecord(int id)
         {
-            var record = _context.MedicalRecords.Find(id);
-            if (record == null)
+            var medicalRecord = await _context.MedicalRecords.FindAsync(id);
+            if (medicalRecord == null)
             {
                 return NotFound();
             }
 
-            _context.MedicalRecords.Remove(record);
-            _context.SaveChanges();
+            _context.MedicalRecords.Remove(medicalRecord);
+            await _context.SaveChangesAsync();
+
             return NoContent();
+        }
+
+        private bool MedicalRecordExists(int id)
+        {
+            return _context.MedicalRecords.Any(e => e.Id == id);
         }
     }
 }
